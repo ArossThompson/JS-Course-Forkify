@@ -1,0 +1,12 @@
+{
+  "preset": [
+    ["env", {
+      "targets": {
+        "broswers": [
+          "Last 5 versions",
+          "ie >= 8"
+        ]
+      }
+    }]
+  ]
+}
