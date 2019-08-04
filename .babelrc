@@ -1,5 +1,5 @@
 {
-  "preset": [
+  "presets": [
     ["env", {
       "targets": {
         "broswers": [
