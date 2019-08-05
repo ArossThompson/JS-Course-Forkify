@@ -6,6 +6,25 @@ export const clearResults = () => {
   elements.searchResList.innerHTML = '';
   elements.searchResPages.innerHTML = '';
 }
+
+export const highlightedSelected = id => {
+  const resultsArr = Array.from(document.querySelectorAll('.results__link'));
+    resultsArr.forEach(el => {
+        el.classList.remove('results__link--active');
+    });
+    document.querySelector(`.results__link[href*="${id}"]`).classList.add('results__link--active');
+}
+
+export const noResults = query => {
+  const markup = `
+  <div>
+      <h1 class="heading-2">No results for ${query}</h1>
+  </div>
+  `;
+
+  elements.searchResList.insertAdjacentHTML('beforeend', markup);   
+}
+
 const limitRecipeTitle = (title, limit = 17) => {
   const newTitle = [];
   if (title.length > limit) {

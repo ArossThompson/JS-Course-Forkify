@@ -1,6 +1,10 @@
 import Search from './models/Search';
 import * as searchView from './views/searchView'
+import * as recipeView from './views/recipeView'
 import { elements, renderLoader, loaderRemove } from './views/base'
+import Recipe from './models/Recipe'
+
+
 /** Global state of the app
  * - Search object
  * - Current recipe object
@@ -9,6 +13,9 @@ import { elements, renderLoader, loaderRemove } from './views/base'
  */
 
 const state = {}
+
+///////////
+// Search controller
 
 const controlSearch = async () => {
   // Get Query from the View
@@ -23,11 +30,26 @@ const controlSearch = async () => {
     searchView.clearResults();
     renderLoader(elements.searchResContainer);
     // Search for recipes
-    await state.search.getResults();
-    loaderRemove(elements.searchResContainer);
 
-    // Render results in UI
-    searchView.renderResults(state.search.result);
+    try {
+      await state.search.getResults();
+
+      // Render results in UI
+      loaderRemove(elements.searchResContainer);
+
+      if (state.search.result.length === 0 ) {
+        searchView.noResults(query);
+      } else {
+        // 5) render results on UI
+        searchView.renderResults(state.search.result);
+      }
+    }
+    catch(error) {
+      console.log(error);
+      alert('something went wrong with the search');
+      loaderRemove(elements.searchResContainer);
+    }
+    
   }
 
 }
@@ -45,3 +67,46 @@ elements.searchResPages.addEventListener('click', e => {
     searchView.renderResults(state.search.result, goToPage);
   }
 })
+
+
+///////////////
+//// Recipe Controller
+
+const controlRecipe = async () => {
+  // Get id from url
+  const id = window.location.hash.replace('#', '');
+  console.log(id);
+
+
+  if(id) {
+    // prepare UI for changes
+    recipeView.clearRecipe();
+    renderLoader(elements.recipe)
+    // Create new recipe object
+    state.recipe = new Recipe(id);
+
+    // Highlight selected
+    if(state.search) {
+      searchView.highlightedSelected(id);
+    }
+
+    try {
+      // Get recipe Data and parse ings
+      await state.recipe.getRecipe()
+      state.recipe.parseIngredients();
+
+      // Call time and servings functions
+      state.recipe.calcTime();
+      state.recipe.calcServings();
+      // Render recipe to UI
+      loaderRemove(elements.recipe);
+      recipeView.renderRecipe(state.recipe);
+    }
+    catch(error) {
+      console.log(error);
+      alert('Error processing recipe')
+    }
+  }
+};
+
+['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe)); 
